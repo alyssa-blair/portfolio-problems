@@ -1,0 +1,25 @@
+body {
+    background-color: #bdb19d;
+}
+
+h1 {
+    font-family: monospace;
+}
+
+p {
+    font-family: monospace;
+}
+
+.button {
+    font-family: monospace;
+    background-color: #706256;
+    color: #000000;
+    border: none;
+    padding: 10px 23px;
+}
+
+.input {
+    background-color: #e0ddd7;
+    font-family: monospace;
+    border: none;
+}
