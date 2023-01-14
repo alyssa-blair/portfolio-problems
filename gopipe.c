@@ -161,7 +161,7 @@ void execute_instr(struct dict data, int count) {
                 
                 // fork failed, exit
                 if ((pid[c] = fork()) < 0) 
-                    exit(0);
+                    exit(1);
                 
                 if (pid[c] == 0) {
                     // child process
