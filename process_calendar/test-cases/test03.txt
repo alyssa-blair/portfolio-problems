@@ -1,0 +1,1 @@
+python3 process_cal.py 2022/01/01 2022/12/31 test02.xml >> test03_results.txt
