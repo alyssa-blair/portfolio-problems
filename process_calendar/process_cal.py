@@ -8,13 +8,16 @@ events = []
 days = {}
 
 def main():
-    # open the file
+    # boundary dates
     t1 = sys.argv[1]
     t2 = sys.argv[2]
+    
+    # open xml file
     filename = sys.argv[3]
     fp = open(filename, "r")
-
     parse_file(fp)
+    
+    # create date objects
     d1 = parse_date(t1)
     d2 = parse_date(t2)
     compare_dates(d1, d2)
@@ -27,6 +30,7 @@ def parse_file(fp):
     curEvent = {}
 
     while line:
+        # read line and split into token and value
         line = fp.readline()
         cur = re.split("[/<>\n]", line)[1:3]
         if len(cur) == 0:
@@ -46,8 +50,8 @@ def parse_file(fp):
             curEvent[token] = value
 
 
-
 def parse_date(date):
+    # create a date object
     dateArr = date.split('/')
     return datetime.date(int(dateArr[0]), int(dateArr[1]), int(dateArr[2]))
 
@@ -74,13 +78,12 @@ def output():
         return
 
     while len(days) != 0:
-        # take the earliest date
+        # find the earliest date
         curEvents = min(days)
         curDays = days[curEvents]
         days.pop(curEvents)
 
-
-        # print the current date
+        # print this date
         d = datetime.datetime.strptime(f'{curDays[0].format_date()}',"%Y-%m-%d")
         print(d.strftime(f"%B %d, %Y ({curDays[0].dweek})"))
 
@@ -99,19 +102,18 @@ def output():
 
 
 def compare_times(curEvents, times):
-
     global events
 
     while len(times) != 0:
+        # find the lowest time
         low = min(times)
         event = times[low] 
+        # print all events at this time
         for e in event:
-            # print all events at this time
             print_date(e)
-
-            #remove current event from arrays
             curEvents.remove(e)
             events.remove(e)
+            
         # remove time
         del times[low]
         
@@ -120,6 +122,7 @@ def compare_times(curEvents, times):
 
 
 def print_date(event):
+    # format and print the given event
     startTime = convert(event.start)
     endTime = convert(event.end)
     print(f'{startTime} to {endTime}: {event.description} {{{{{event.location}}}}} | {event.timezone}')
