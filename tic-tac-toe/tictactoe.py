@@ -1,6 +1,16 @@
 from typing import List
 import random
 
+winList = {0: [[1,2], [3,6], [4,8]],
+               1: [[0,2], [4,7]], 
+               2: [[0,1],[5,8], [4,6]],
+               3: [[0,6], [4,5]],
+               4: [[0,8], [1,7],[2,6],[3,5]],
+               5: [[2,8], [3,4]],
+               6:[[0,3], [2,4], [7,8]],
+               7:[[1,4], [6,8]],
+               8:[[0,4],[2,5],[6,7]]}
+
 
 def create_board(state: List[str]):
     """ prints the board with the current moves to stdout """
@@ -11,23 +21,10 @@ def create_board(state: List[str]):
     print(" " + state[6] + " | " + state[7] + " | " + state[8] + " ")
     print("   |   |   ")
 
-def win_list(pos: int):
-    """ returns the list of lines attached to the given move """
-    winList = {0: [[1,2], [3,6], [4,8]],
-    1: [[0,2], [4,7]], 
-    2: [[0,1],[5,8], [4,6]],
-    3: [[0,6], [4,5]],
-    4: [[0,8], [1,7],[2,6],[3,5]],
-    5: [[2,8], [3,4]],
-    6:[[0,3], [2,4], [7,8]],
-    7:[[1,4], [6,8]],
-    8:[[0,4],[2,5],[6,7]]}
-    return winList[pos]
-
 def check_win(pos: int, posList: List[str], letter: str):
     """ checks to see if either the user or computer have won the game """
-    winList = win_list(pos)
-    for i in winList:
+    curPos = winList[pos]
+    for i in curPos:
         curVal = i[0]
         secVal = i[1]
         if (posList[curVal] == letter and posList[secVal] == letter):
@@ -65,14 +62,17 @@ def check_good_move(val: int, val2: int, posList: List[str]):
 
 def check_next(letter: str, val: int, posList: List[str]):
     """ checks to see if there is a line with two of the same letter in it"""
-    winList = win_list(val)
-    for i in winList:
+    curPos = winList[val]
+    
+    for i in curPos:
         valOne = i[0]
         valTwo = i[1]
+        
         if (posList[valOne] == letter and posList[valTwo] == " "):
             return valTwo
         elif (posList[valOne] == " " and posList[valTwo] == letter):
             return valOne
+        
     return -1
 
 def computer_move(numList: List[int], posList: List[str], val: int, val2: int):
