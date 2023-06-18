@@ -155,14 +155,6 @@ class Line < GeometryValue
     @m = m
     @b = b
   end
-
-  def shift (dx, dy)
-    Line.new(@m, @b + dy - @m * dx)
-  end 
-
-  def intersect other
-    other.intersectLine self
-  end
   
   def preprocess_prog
     self
@@ -170,6 +162,14 @@ class Line < GeometryValue
 
   def eval_prog env
     self
+  end
+
+  def shift (dx, dy)
+    Line.new(@m, @b + dy - @m * dx)
+  end 
+
+  def intersect other
+    other.intersectLine self
   end
 
   def intersectPoint p
@@ -208,11 +208,7 @@ class VerticalLine < GeometryValue
   def initialize x
     @x = x
   end
-
-  def shift (dx, dy) 
-    VerticalLine.new(@x+dx)
-  end 
-
+  
   def preprocess_prog
     self
   end
@@ -220,6 +216,10 @@ class VerticalLine < GeometryValue
   def eval_prog env
     self
   end
+
+  def shift (dx, dy) 
+    VerticalLine.new(@x+dx)
+  end 
 
   def intersect other
     other.intersectVerticalLine self
@@ -259,33 +259,36 @@ class LineSegment < GeometryValue
     @x2 = x2
     @y2 = y2
   end
-
-  def shift (dx, dy)
-    LineSegment.new(@x1+dx, @y1+dy, @x2+dx, @y2+dy)
-  end
-
+  
   def preprocess_prog 
     if real_close(@x1, @x2) && real_close(@y1, @y2)
       Point.new(@x1, @y1)
+      
     elsif real_close(@x1, @x2)
       if @y1 < @y2
         LineSegment.new(@x2, @y2, @x1, @y1)
       else
         LineSegment.new(@x2, @y1, @x1, @y2)
       end
+      
     elsif @x1 > @x2
       self
     else
-        LineSegment.new(@x2, @y2, @x1, @y1)
+      LineSegment.new(@x2, @y2, @x1, @y1)
     end
   end
+  
+  def eval_prog env
+    self
+  end
+
+  def shift (dx, dy)
+    LineSegment.new(@x1+dx, @y1+dy, @x2+dx, @y2+dy)
+  end
+
 
   def intersect l
     l.intersectLineSegment self
-  end
-
-  def eval_prog env
-    self
   end
 
   def intersectPoint p
@@ -399,18 +402,17 @@ class Var < GeometryExpression
     @s = s # variable
   end
 
+  def preprocess_prog 
+    self
+  end
+  
   def eval_prog env
     pr = env.assoc @s
     raise "undefined variable" if pr.nil?
     pr[1]
   end
-
-  def preprocess_prog 
-    self
-  end
-
-  
 end
+
 
 class Shift < GeometryExpression
   # shift of a geometry expression
