@@ -1,6 +1,6 @@
 # A previous assignment which calculates the intersections of different geometry expressions
 # All geometry expressions are immutable 
-# Cannot use any functions to check which type of object is being intersected 
+# Cannot use any functions to check which type of object is being intersected (such as is_a?)
 
 # preprocess_prog - simplifies the expression if necessary 
 # eval_prog - evaluates the expression under the current environment
