@@ -44,6 +44,7 @@ class GeometryValue
   end
 end
 
+
 class None < GeometryValue
   # A none object, any intersection is also none
   def eval_prog env
@@ -126,7 +127,6 @@ class Point < GeometryValue
   end 
 
   def intersectVerticalLine vl
-    
     if real_close(vl.x, @x)
       self 
     else 
@@ -199,8 +199,8 @@ class Line < GeometryValue
   def intersectWithSegmentAsLineResult seg
     seg
   end
-
 end
+
 
 class VerticalLine < GeometryValue
   # a vertical line with an x-coordinate
@@ -249,6 +249,7 @@ class VerticalLine < GeometryValue
     seg
   end
 end
+
 
 class LineSegment < GeometryValue
   # a line segment with two x and y coordinates
@@ -302,7 +303,6 @@ class LineSegment < GeometryValue
     end
   end
 
-  
   def intersectLine l
     l.intersectLineSegment self
   end
@@ -352,7 +352,6 @@ class LineSegment < GeometryValue
       end
     end
   end
-
 end
 
 
@@ -393,8 +392,8 @@ class Let < GeometryExpression
     # add the new variable
     @e2.eval_prog(env.append([@s, @e1]))
   end
-
 end
+
 
 class Var < GeometryExpression
   # get the value of the variable if in the environment
@@ -433,5 +432,4 @@ class Shift < GeometryExpression
   def shift (x, y)
     Shift.new(@dx + x, @dy + y, @e).eval_prog([])
   end
-
 end
