@@ -1,8 +1,8 @@
 import sys
 import math
 import numpy as np
-from sphere import *
-from light import *
+from Sphere import *
+from Light import *
 
 spheres = []
 lights = []
@@ -129,8 +129,8 @@ def raytrace(ray, count):
 
 
     # reflection and ambience variable
-    kr = sphere.kr
-    ka = sphere.ka
+    kr = sphere.effect.kr
+    ka = sphere.effect.ka
 
     # if the surface is reflective, raytrace the reflected ray
     reflected_ray = compute_reflected_ray(ray, P, sphere)
@@ -140,9 +140,9 @@ def raytrace(ray, count):
     
     # add all the colors together
     color = [0,0,0]
-    color[0] = ka * float(ambient[0]) * sphere.r + color_local[0] + kr * color_reflect[0]
-    color[1] = ka * float(ambient[1]) * sphere.g + color_local[1] + kr * color_reflect[1]
-    color[2] = ka * float(ambient[2]) * sphere.b + color_local[2] + kr * color_reflect[2]
+    color[0] = ka * float(ambient[0]) * sphere.col.r + color_local[0] + kr * color_reflect[0]
+    color[1] = ka * float(ambient[1]) * sphere.col.g + color_local[1] + kr * color_reflect[1]
+    color[2] = ka * float(ambient[2]) * sphere.col.b + color_local[2] + kr * color_reflect[2]
 
     return color, count
 
@@ -160,12 +160,12 @@ def compute_reflected_ray(ray, P, sphere):
     c = ray[1]
     
     # compute the normal of the sphere at point P
-    N = [P[0] - sphere.x, P[1] - sphere.y, P[2] - sphere.z, 0]
+    N = [P[0] - sphere.coord.x, P[1] - sphere.coord.y, P[2] - sphere.coord.z, 0]
     
     # compute the inverse transformed model matrix
-    m = [[sphere.sx,0,0,sphere.x],
-         [0,sphere.sy,0,sphere.y],
-         [0,0,sphere.sz,sphere.z],
+    m = [[sphere.scale.sx,0,0,sphere.coord.x],
+         [0,sphere.scale.sy,0,sphere.coord.y],
+         [0,0,sphere.scale.sz,sphere.coord.z],
          [0,0,0,1]]
     minv = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
     invert_matrix(m, minv)
@@ -194,7 +194,7 @@ def shadow_ray(light, P, sphere):
     if there is, return black. if not, compute the color value at this point
     """
     # create a vector from the point to the light
-    curLight = [light.x-P[0], light.y-P[1],light.z-P[2]]
+    curLight = [light.coord.x-P[0], light.coord.y-P[1],light.coord.z-P[2]]
     line = [P, curLight]
 
     # check if there is an object between the point and light
@@ -204,21 +204,21 @@ def shadow_ray(light, P, sphere):
         return [0,0,0]
 
     # diffuse and specular constants
-    kd = sphere.kd
-    ks = sphere.ks
+    kd = sphere.effect.kd
+    ks = sphere.effect.ks
     
     # get inverse transposed model matrix 
-    m = [[sphere.sx,0,0,sphere.x],
-         [0,sphere.sy,0,sphere.y],
-         [0,0,sphere.sz,sphere.z],
+    m = [[sphere.scale.sx,0,0,sphere.coord.x],
+         [0,sphere.scale.sy,0,sphere.coord.y],
+         [0,0,sphere.scale.sz,sphere.coord.z],
          [0,0,0,1]]
     minv = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]
     invert_matrix(m, minv)
     transpose(minv)
 
     # Compute the unit normal and light vector
-    N = [P[0] - sphere.x, P[1] - sphere.y, P[2] - sphere.z,0]
-    L = [light.x - P[0], light.y - P[1], light.z - P[2]]
+    N = [P[0] - sphere.coord.x, P[1] - sphere.coord.y, P[2] - sphere.coord.z,0]
+    L = [light.coord.x - P[0], light.coord.y - P[1], light.coord.z - P[2]]
     N = list(np.matmul(minv, N))[:3]
     L = normalize(L)
     N = normalize(N)
@@ -236,22 +236,22 @@ def shadow_ray(light, P, sphere):
     R = normalize(R)
     V = normalize(V)
 
-    # get the shininess exponent of the sphere
-    n = sphere.n
+    # get the specular exponent of the sphere
+    n = sphere.effect.n
 
     newColor = [0,0,0]
     diffuse = [0,0,0]
     specular = [0,0,0]
 
     # calculate diffuse
-    diffuse[0] = kd * light.r * max(0,np.dot(N,L)) * sphere.r
-    diffuse[1] = kd * light.g * max(0,np.dot(N,L)) * sphere.g
-    diffuse[2] = kd * light.b * max(0,np.dot(N,L)) * sphere.b
+    diffuse[0] = kd * light.col.r * max(0,np.dot(N,L)) * sphere.col.r
+    diffuse[1] = kd * light.col.g * max(0,np.dot(N,L)) * sphere.col.g
+    diffuse[2] = kd * light.col.b * max(0,np.dot(N,L)) * sphere.col.b
 
     # calculate specular
-    specular[0] = ks * pow(min(max(0,np.dot(R, V)),1),n) * light.r
-    specular[1] = ks * pow(min(max(0,np.dot(R, V)),1),n) * light.g
-    specular[2] = ks * pow(min(max(0,np.dot(R, V)),1),n) * light.b
+    specular[0] = ks * pow(min(max(0,np.dot(R, V)),1),n) * light.col.r
+    specular[1] = ks * pow(min(max(0,np.dot(R, V)),1),n) * light.col.g
+    specular[2] = ks * pow(min(max(0,np.dot(R, V)),1),n) * light.col.b
 
     # add diffuse and specular together
     newColor[0] = diffuse[0] + specular[0]
@@ -295,9 +295,9 @@ def compute_close_intersection(ray):
 
     for sphere in spheres:        
         # create the transformation matrix
-        m = [[sphere.sx,0,0,sphere.x],
-             [0,sphere.sy,0,sphere.y],
-             [0,0,sphere.sz,sphere.z],
+        m = [[sphere.scale.sx,0,0,sphere.coord.x],
+             [0,sphere.scale.sy,0,sphere.coord.y],
+             [0,0,sphere.scale.sz,sphere.coord.z],
              [0,0,0,1]]
         
 
