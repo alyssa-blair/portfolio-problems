@@ -13,11 +13,10 @@ public class DFA {
         String str = prompt();
         boolean result = state_0(str);
 
-        if (result == true) {
+        if (result)
             System.out.println("This string is accepted by the DFA");
-        } else {
+        else
             System.out.println("This string is not accepted by the DFA");
-        }
     }
 
     public static String prompt() {
@@ -31,73 +30,69 @@ public class DFA {
 
     public static boolean state_0(String str) {
         // state q0
-        if (str.length() == 0) {
-            // reject as string ends on non-accept state
+        
+        // reject as string ends on non-accept state
+        if (str.length() == 0)
             return false;
-        }
         
         char curChar = str.charAt(0);
         // checks first character of string to see next state
-        if (curChar == CHAR_A) {
+        if (curChar == CHAR_A)
             return state_2(str = str.substring(1,str.length()));
-        } else if (curChar == CHAR_B) {
+        else if (curChar == CHAR_B)
             return state_3(str = str.substring(1, str.length()));
-        } else {
+        else
             return false;
-        }
     }
 
     public static boolean state_1(String str) {
         // state q1
-        if (str.length() == 0) {
-            // accept as string ends on accept state
+        
+        // accept as string ends on accept state
+        if (str.length() == 0)
             return true;
-        }
         
         char curChar = str.charAt(0);
         // checks first character of string to see next state
-        if (curChar == CHAR_A) {
+        if (curChar == CHAR_A)
             return state_0(str = str.substring(1, str.length()));
-        } else if (curChar == CHAR_B) {
+        else if (curChar == CHAR_B)
             return state_1(str = str.substring(1, str.length()));
-        } else {
+        else
             return false;
-        }
     }
 
     public static boolean state_2(String str) {
         // state q2
-        if (str.length() == 0) {
-            // reject as string ends on non-accept state
+        
+        // reject as string ends on non-accept state
+        if (str.length() == 0)
             return false;
-        }
 
         char curChar = str.charAt(0);
         // checks first character of string to see next state
-        if (curChar == CHAR_A) {
+        if (curChar == CHAR_A)
             return state_0(str = str.substring(1, str.length()));
-        } else if (curChar == CHAR_B) {
+        else if (curChar == CHAR_B)
             return state_1(str = str.substring(1, str.length()));
-        } else {
+        else
             return false;
-        }
     }
 
     public static boolean state_3(String str) {
         // state q3
-        if (str.length() == 0) {
-            // reject as string ends on non-accept state
+
+        // reject as string ends on non-accept state
+        if (str.length() == 0)
             return false;
-        }
 
         char curChar = str.charAt(0);
         // checks first character of string to see next state
-        if (curChar == CHAR_A) {
+        if (curChar == CHAR_A)
             return state_2(str = str.substring(1, str.length()));
-        } else if (curChar == CHAR_B) {
+        else if (curChar == CHAR_B)
             return state_3(str = str.substring(1, str.length()));
-        } else {
+        else
             return false;
-        }
     }
 }
