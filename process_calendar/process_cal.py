@@ -3,6 +3,7 @@ import sys
 from typing import Dict, List
 import re
 from Event import *
+from dacite import from_dict, Config
 
 events = []
 days = {}
@@ -11,7 +12,7 @@ def main():
     # boundary dates
     t1 = sys.argv[1]
     t2 = sys.argv[2]
-    
+
     # open xml file
     filename = sys.argv[3]
     fp = open(filename, "r")
@@ -41,7 +42,7 @@ def parse_file(fp):
 
         if len(token) == 0 and len(curEvent) != 0:
             # create an event using the information
-            event = Event(curEvent)
+            event = Event.from_dict(curEvent)
             events.append(event)
             curEvent = {}
 
@@ -64,11 +65,9 @@ def compare_dates(d1, d2):
     # if the dates are in the date range, add to days
     for event in events:
         date = event.format_date()
+        
         if date <= d2 and date >= d1:
-            if date not in days:
-                days[date] = [event]
-            else:
-                days[date].append(event)
+            days.setdefault(date, []).append(event)
 
 def output():
     global days
@@ -79,24 +78,17 @@ def output():
 
     while len(days) != 0:
         # find the earliest date
-        curEvents = min(days)
-        curDays = days[curEvents]
-        days.pop(curEvents)
+        curDays = days.pop(min(days))
 
         # print this date
         d = datetime.datetime.strptime(f'{curDays[0].format_date()}',"%Y-%m-%d")
         print(d.strftime(f"%B %d, %Y ({curDays[0].dweek})"))
 
+        # map of times on each date: {date: [times]}
         times = {}
-        # create an array of the times on this day
         for event in curDays:
-            time = event.start
-            if time not in times:
-                # create new time block
-                times[time] = [event]
-            else:
-                # add to existing time block
-                times[time].append(event)
+            times.setdefault(event.start, []).append(event)
+
         compare_times(curDays, times)
         print("")
 
@@ -104,21 +96,15 @@ def output():
 def compare_times(curEvents, times):
     global events
 
-    while len(times) != 0:
-        # find the lowest time
-        low = min(times)
-        event = times[low] 
-        # print all events at this time
-        for e in event:
-            print_date(e)
-            curEvents.remove(e)
-            events.remove(e)
-            
-        # remove time
-        del times[low]
-        
+    for time in sorted(times):
+        events = times[time]
 
+        for curEvent in events:
+            print_date(curEvent)
+            curEvents.remove(curEvent)
+            events.remove(curEvent)
         
+        del times[time]
 
 
 def print_date(event):
@@ -132,6 +118,7 @@ def convert(time):
     # converts the time from 24 to 12 hour
     twelve = datetime.datetime.strptime(time, "%H:%M")
     return twelve.strftime("%I:%M %p")
+
 
 if __name__ == '__main__':
     main()
